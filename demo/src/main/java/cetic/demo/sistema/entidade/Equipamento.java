@@ -56,6 +56,11 @@ public class Equipamento {
     @Column(nullable = false)
     private String status;
 
+      @Column(nullable = false)
+    private String status2;
+
+
+
     public Equipamento(EquipamentosDTO equipamentosDTO) {
 
         BeanUtils.copyProperties(equipamentosDTO, this);
@@ -70,6 +75,7 @@ public class Equipamento {
         this.dataAquisicao = dto.getDataAquisicao();
         this.fornecedor = dto.getFornecedor();
         this.status = dto.getStatus();
+        this.status2 = dto.getStatus2();
     }
 
 }

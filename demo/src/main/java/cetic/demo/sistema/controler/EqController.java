@@ -26,20 +26,19 @@ public class EqController {
         return ResponseEntity.ok(equipamentoSalvo);
     }
 
-    // Editar equipamento pelo número de série
+    // Editar equipamento
     @PreAuthorize("isAuthenticated()")
-    @PutMapping("/edit/{numeroSerie}")
-    public ResponseEntity<EquipamentosDTO> editarEquipamento(@PathVariable String numeroSerie,
-            @RequestBody EquipamentosDTO equipamentosDTO) {
-        EquipamentosDTO equipamentoEditado = equipamentoService.editarEquipamento(numeroSerie, equipamentosDTO);
+    @PutMapping("/edit")
+    public ResponseEntity<EquipamentosDTO> editarEquipamento(@RequestBody EquipamentosDTO equipamentosDTO) {
+        EquipamentosDTO equipamentoEditado = equipamentoService.editarEquipamento(equipamentosDTO);
         return ResponseEntity.ok(equipamentoEditado);
     }
 
     // Buscar equipamento pelo número de série
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/buscar/{numeroSerie}")
-    public ResponseEntity<EquipamentosDTO> buscarPorNumeroSerie(@PathVariable String numeroSerie) {
-        EquipamentosDTO equipamento = equipamentoService.buscarPorNumeroSerie(numeroSerie);
+    @PostMapping("/buscar")
+    public ResponseEntity<EquipamentosDTO> buscarPorNumeroSerie(@RequestBody EquipamentosDTO equipamentosDTO) {
+        EquipamentosDTO equipamento = equipamentoService.buscarPorNumeroSerie(equipamentosDTO);
         return ResponseEntity.ok(equipamento);
     }
 
@@ -62,9 +61,9 @@ public class EqController {
 
     // Deletar equipamento pelo número de série
     @PreAuthorize("isAuthenticated()")
-    @DeleteMapping("/deletar/{numeroSerie}")
-    public ResponseEntity<Void> deletarEquipamento(@PathVariable String numeroSerie) {
-        equipamentoService.deletarEquipamento(numeroSerie);
+    @DeleteMapping("/deletar")
+    public ResponseEntity<Void> deletarEquipamento(@RequestBody EquipamentosDTO equipamentosDTO) {
+        equipamentoService.deletarEquipamento(equipamentosDTO);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,5 +1,6 @@
 package cetic.demo.sistema.services;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,85 +21,94 @@ public class EmprestimoEquipamentoService {
     @Autowired
     private EquipamentoRepository equipamentoRepository;
 
-    // Salvar um empréstimo
-    public EmprestimoDTO salvarEmprestimo(String numeroSerie, EmprestimoEquipamento emprestimoEquipamento) {
-        Equipamento equipamento = equipamentoRepository.findByNumeroSerie(numeroSerie)
+    public EmprestimoDTO salvarEmprestimo(EmprestimoDTO emprestimoDTO) {
+        Equipamento equipamento = equipamentoRepository.findByNumeroSerie(emprestimoDTO.getNumeroSerie())
                 .orElseThrow(() -> new RuntimeException("Equipamento não encontrado"));
 
+        EmprestimoEquipamento emprestimoEquipamento = new EmprestimoEquipamento();
         emprestimoEquipamento.setEquipamento(equipamento);
-        EmprestimoEquipamento emprestimoSalvo = emprestimoEquipamentoRepository.save(emprestimoEquipamento);
+        emprestimoEquipamento.setDataEmprestimo(LocalDate.now());
+        emprestimoEquipamento.setQuantidade(emprestimoDTO.getQuantidade());
+        emprestimoEquipamento.setDataDevolucao(emprestimoDTO.getDataDevolucao());
+        emprestimoEquipamento.setJustificativaEmprestimo(emprestimoDTO.getJustificativaEmprestimo());
+        emprestimoEquipamento.setStatus(equipamento.getStatus());
+        emprestimoEquipamento.setResponsavel(emprestimoDTO.getResponsavel());
+        emprestimoEquipamento.setStatus2("EMPRESTADO");
 
+        equipamento.setStatus2(emprestimoEquipamento.getStatus2());
+        equipamentoRepository.save(equipamento); // Salva o equipamento atualizado
+        emprestimoEquipamento.setQuemFezEmprestimo(emprestimoDTO.getQuemFezEmprestimo());
+
+        EmprestimoEquipamento emprestimoSalvo = emprestimoEquipamentoRepository.save(emprestimoEquipamento);
         return new EmprestimoDTO(emprestimoSalvo);
     }
 
-    // Listar todos os empréstimos
     public List<EmprestimoDTO> listarEmprestimos() {
-        List<EmprestimoEquipamento> emprestimos = emprestimoEquipamentoRepository.findAll();
-        return emprestimos.stream()
+        return emprestimoEquipamentoRepository.findAll()
+                .stream()
                 .map(EmprestimoDTO::new)
                 .toList();
     }
 
-    // Buscar empréstimo por número de série
-    public Optional<EmprestimoDTO> buscarEmprestimoPorNumeroSerie(String numeroSerie) {
-        Optional<EmprestimoEquipamento> emprestimo = emprestimoEquipamentoRepository
-                .findByEquipamento_NumeroSerie(numeroSerie);
-        return emprestimo.map(EmprestimoDTO::new);
+    public Optional<EmprestimoDTO> buscarEmprestimoPorNumeroSerie(EmprestimoDTO emprestimoDTO) {
+        return emprestimoEquipamentoRepository.findByEquipamento_NumeroSerie(emprestimoDTO.getNumeroSerie())
+                .map(EmprestimoDTO::new);
     }
 
-    // Atualizar empréstimo por número de série
-    public Optional<EmprestimoDTO> atualizarEmprestimoPorNumeroSerie(String numeroSerie,
-            EmprestimoEquipamento dadosAtualizados) {
+    public Optional<EmprestimoDTO> atualizarEmprestimoPorNumeroSerie(EmprestimoDTO emprestimoDTO) {
         Optional<EmprestimoEquipamento> emprestimoExistente = emprestimoEquipamentoRepository
-                .findByEquipamento_NumeroSerie(numeroSerie);
+                .findByEquipamento_NumeroSerie(emprestimoDTO.getNumeroSerie());
+
         if (emprestimoExistente.isPresent()) {
             EmprestimoEquipamento emprestimo = emprestimoExistente.get();
-            emprestimo.setResponsavel(dadosAtualizados.getResponsavel());
-            emprestimo.setDataEmprestimo(dadosAtualizados.getDataEmprestimo());
-            emprestimo.setDataDevolucao(dadosAtualizados.getDataDevolucao());
-            emprestimo.setStatus(dadosAtualizados.getStatus());
+
+            emprestimo.setResponsavel(emprestimoDTO.getResponsavel());
+            emprestimo.setDataEmprestimo(emprestimoDTO.getDataEmprestimo());
+            emprestimo.setDataDevolucao(emprestimoDTO.getDataDevolucao());
+            emprestimo.setJustificativaEmprestimo(emprestimoDTO.getJustificativaEmprestimo());
+            emprestimo.setStatus(emprestimoDTO.getStatus());
+            emprestimo.setQuantidade(emprestimoDTO.getQuantidade());
+            emprestimo.setQuemFezEmprestimo(emprestimoDTO.getQuemFezEmprestimo());
 
             EmprestimoEquipamento emprestimoAtualizado = emprestimoEquipamentoRepository.save(emprestimo);
             return Optional.of(new EmprestimoDTO(emprestimoAtualizado));
         }
+
         return Optional.empty();
     }
 
-    // Excluir empréstimo por número de série
-    public boolean excluirEmprestimoPorNumeroSerie(String numeroSerie) {
+    public boolean excluirEmprestimoPorNumeroSerie(EmprestimoDTO emprestimoDTO) {
         Optional<EmprestimoEquipamento> emprestimoExistente = emprestimoEquipamentoRepository
-                .findByEquipamento_NumeroSerie(numeroSerie);
+                .findByEquipamento_NumeroSerie(emprestimoDTO.getNumeroSerie());
+
         if (emprestimoExistente.isPresent()) {
             emprestimoEquipamentoRepository.delete(emprestimoExistente.get());
             return true;
         }
+
         return false;
     }
 
-    // Verificar se o empréstimo existe por número de série
-    public boolean verificarSeEmprestimoExiste(String numeroSerie) {
-        Optional<EmprestimoEquipamento> emprestimoExistente = emprestimoEquipamentoRepository
-                .findByEquipamento_NumeroSerie(numeroSerie);
-        return emprestimoExistente.isPresent();
+    public boolean verificarSeEmprestimoExiste(EmprestimoDTO emprestimoDTO) {
+        return emprestimoEquipamentoRepository
+                .findByEquipamento_NumeroSerie(emprestimoDTO.getNumeroSerie())
+                .isPresent();
     }
 
-    // Contar o número de empréstimos
     public long contarEmprestimos() {
         return emprestimoEquipamentoRepository.count();
     }
 
-    // Buscar empréstimos por responsável
-    public List<EmprestimoDTO> buscarEmprestimosPorResponsavel(String responsavel) {
-        List<EmprestimoEquipamento> emprestimos = emprestimoEquipamentoRepository.findByResponsavel(responsavel);
-        return emprestimos.stream()
+    public List<EmprestimoDTO> buscarEmprestimosPorResponsavel(EmprestimoDTO emprestimoDTO) {
+        return emprestimoEquipamentoRepository.findByResponsavel(emprestimoDTO.getResponsavel())
+                .stream()
                 .map(EmprestimoDTO::new)
                 .toList();
     }
 
-    // Buscar empréstimos por status
-    public List<EmprestimoDTO> buscarEmprestimosPorStatus(String status) {
-        List<EmprestimoEquipamento> emprestimos = emprestimoEquipamentoRepository.findByStatus(status);
-        return emprestimos.stream()
+    public List<EmprestimoDTO> buscarEmprestimosPorStatus(EmprestimoDTO emprestimoDTO) {
+        return emprestimoEquipamentoRepository.findByStatus(emprestimoDTO.getStatus())
+                .stream()
                 .map(EmprestimoDTO::new)
                 .toList();
     }

@@ -43,7 +43,8 @@ public class AvariaDTO {
         BeanUtils.copyProperties(avariaEquipamento, this);
         this.numeroSerie = avariaEquipamento.getEquipamento().getNumeroSerie();
         this.nome = avariaEquipamento.getEquipamento().getNome();
-
-
+        if (avariaEquipamento.getStatus() != null) {
+            this.status = avariaEquipamento.getStatus().name();
+        }
     }
 }

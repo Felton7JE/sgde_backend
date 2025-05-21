@@ -39,6 +39,8 @@ public class EquipamentosDTO {
 
     private String status;
 
+    private String status2;
+
 
     public EquipamentosDTO (Equipamento equipamento){
 

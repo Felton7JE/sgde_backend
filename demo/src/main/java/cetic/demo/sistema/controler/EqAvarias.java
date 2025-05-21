@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import cetic.demo.sistema.dto.AvariaDTO;
-import cetic.demo.sistema.entidade.AvariaEquipamento;
 import cetic.demo.sistema.services.AvariaEquipamentoService;
 
 @RestController
@@ -20,15 +19,10 @@ public class EqAvarias {
     private AvariaEquipamentoService avariaEquipamentoService;
 
     // Criar avaria
-    @PostMapping("/{numeroSerie}")
-    public ResponseEntity<AvariaDTO> criarAvaria(@PathVariable String numeroSerie,
-            @RequestBody AvariaEquipamento avariaEquipamento) {
-        try {
-            AvariaDTO avariaDTO = avariaEquipamentoService.salvarAvaria(numeroSerie, avariaEquipamento);
-            return new ResponseEntity<>(avariaDTO, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // Caso o equipamento não seja encontrado
-        }
+    @PostMapping
+    public ResponseEntity<AvariaDTO> criarAvaria(@RequestBody AvariaDTO avariaDTO) {
+        AvariaDTO avariaSalva = avariaEquipamentoService.salvarAvaria(avariaDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(avariaSalva);
     }
 
     // Listar todas as avarias
@@ -39,27 +33,25 @@ public class EqAvarias {
     }
 
     // Buscar avaria por número de série
-    @GetMapping("/{numeroSerie}")
-    public ResponseEntity<AvariaDTO> buscarAvariaPorNumeroSerie(@PathVariable String numeroSerie) {
-        Optional<AvariaDTO> avariaDTO = avariaEquipamentoService.buscarAvariaPorNumeroSerie(numeroSerie);
-        return avariaDTO.map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
+    @PostMapping("/buscar")
+    public ResponseEntity<AvariaDTO> buscarAvariaPorNumeroSerie(@RequestBody AvariaDTO avariaDTO) {
+        Optional<AvariaDTO> avaria = avariaEquipamentoService.buscarAvariaPorNumeroSerie(avariaDTO);
+        return avaria.map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     // Atualizar avaria por número de série
-    @PutMapping("/{numeroSerie}")
-    public ResponseEntity<AvariaDTO> atualizarAvariaPorNumeroSerie(@PathVariable String numeroSerie,
-            @RequestBody AvariaEquipamento dadosAtualizados) {
-        Optional<AvariaDTO> avariaDTO = avariaEquipamentoService.atualizarAvariaPorNumeroSerie(numeroSerie,
-                dadosAtualizados);
-        return avariaDTO.map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
+    @PutMapping
+    public ResponseEntity<AvariaDTO> atualizarAvariaPorNumeroSerie(@RequestBody AvariaDTO avariaDTO) {
+        Optional<AvariaDTO> avaria = avariaEquipamentoService.atualizarAvariaPorNumeroSerie(avariaDTO);
+        return avaria.map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     // Excluir avaria por número de série
-    @DeleteMapping("/{numeroSerie}")
-    public ResponseEntity<Void> excluirAvariaPorNumeroSerie(@PathVariable String numeroSerie) {
-        boolean deleted = avariaEquipamentoService.excluirAvariaPorNumeroSerie(numeroSerie);
+    @DeleteMapping
+    public ResponseEntity<Void> excluirAvariaPorNumeroSerie(@RequestBody AvariaDTO avariaDTO) {
+        boolean deleted = avariaEquipamentoService.excluirAvariaPorNumeroSerie(avariaDTO);
         if (deleted) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
@@ -69,7 +61,9 @@ public class EqAvarias {
     // Verificar se existe avaria para o número de série
     @GetMapping("/exists/{numeroSerie}")
     public ResponseEntity<Boolean> verificarSeAvariaExiste(@PathVariable String numeroSerie) {
-        boolean existe = avariaEquipamentoService.verificarSeAvariaExiste(numeroSerie);
+        AvariaDTO avariaDTO = new AvariaDTO();
+        avariaDTO.setNumeroSerie(numeroSerie);
+        boolean existe = avariaEquipamentoService.verificarSeAvariaExiste(avariaDTO);
         return new ResponseEntity<>(existe, HttpStatus.OK);
     }
 
@@ -83,7 +77,9 @@ public class EqAvarias {
     // Buscar avarias por status
     @GetMapping("/status/{status}")
     public ResponseEntity<List<AvariaDTO>> buscarAvariasPorStatus(@PathVariable String status) {
-        List<AvariaDTO> avarias = avariaEquipamentoService.buscarAvariasPorStatus(status);
+        AvariaDTO avariaDTO = new AvariaDTO();
+        avariaDTO.setStatus(status);
+        List<AvariaDTO> avarias = avariaEquipamentoService.buscarAvariasPorStatus(avariaDTO);
         return new ResponseEntity<>(avarias, HttpStatus.OK);
     }
 }

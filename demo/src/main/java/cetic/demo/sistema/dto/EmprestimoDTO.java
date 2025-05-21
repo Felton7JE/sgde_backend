@@ -33,6 +33,9 @@ public class EmprestimoDTO {
 
     private String responsavel;
 
+        private String status2;
+
+        
     private String quemFezEmprestimo;
 
     private String numeroSerie; // Adicionando o campo numeroSerie

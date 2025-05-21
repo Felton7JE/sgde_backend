@@ -53,6 +53,9 @@ public class EmprestimoEquipamento {
     @Column(nullable = false)
     private String quemFezEmprestimo;
 
+        private String status2;
+
+
     public EmprestimoEquipamento(EmprestimoDTO emprestimoDTO) {
 
         BeanUtils.copyProperties(emprestimoDTO, this);

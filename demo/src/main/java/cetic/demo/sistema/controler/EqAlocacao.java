@@ -9,13 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cetic.demo.sistema.dto.AlocacaoDTO;
-import cetic.demo.sistema.entidade.AlocacaoEquipamento;
 import cetic.demo.sistema.services.AlocacaoEquipamentoService;
 
 @RestController
@@ -31,32 +31,27 @@ public class EqAlocacao {
         return new ResponseEntity<>(alocacoes, HttpStatus.OK);
     }
 
-    @GetMapping("/{numeroSerie}")
-    public ResponseEntity<AlocacaoDTO> buscarAlocacaoPorNumeroSerie(@PathVariable String numeroSerie) {
-        Optional<AlocacaoDTO> alocacaoDTO = alocacaoEquipamentoService.buscarAlocacaoPorNumeroSerie(numeroSerie);
-        return alocacaoDTO.map(ResponseEntity::ok)
+
+
+    @PutMapping
+    public ResponseEntity<AlocacaoDTO> atualizarAlocacaoPorNumeroSerie(@RequestBody AlocacaoDTO alocacaoDTO) {
+        Optional<AlocacaoDTO> alocacao = alocacaoEquipamentoService.atualizarAlocacao(alocacaoDTO);
+        return alocacao.map(ResponseEntity::ok)
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PutMapping("/{numeroSerie}")
-    public ResponseEntity<AlocacaoDTO> atualizarAlocacaoPorNumeroSerie(@PathVariable String numeroSerie,
-            @RequestBody AlocacaoEquipamento dadosAtualizados) {
-        Optional<AlocacaoDTO> alocacaoDTO = alocacaoEquipamentoService.atualizarAlocacaoPorNumeroSerie(numeroSerie,
-                dadosAtualizados);
-        return alocacaoDTO.map(ResponseEntity::ok)
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    @DeleteMapping("/{numeroSerie}")
-    public ResponseEntity<Void> excluirAlocacaoPorNumeroSerie(@PathVariable String numeroSerie) {
-        boolean isDeleted = alocacaoEquipamentoService.excluirAlocacaoPorNumeroSerie(numeroSerie);
+    @DeleteMapping
+    public ResponseEntity<Void> excluirAlocacaoPorNumeroSerie(@RequestBody AlocacaoDTO alocacaoDTO) {
+        boolean isDeleted = alocacaoEquipamentoService.excluirAlocacao(alocacaoDTO);
         return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/verificar/{numeroSerie}")
     public ResponseEntity<Boolean> verificarSeAlocacaoExiste(@PathVariable String numeroSerie) {
-        boolean existe = alocacaoEquipamentoService.verificarSeAlocacaoExiste(numeroSerie);
+        AlocacaoDTO alocacaoDTO = new AlocacaoDTO();
+        alocacaoDTO.setNumeroSerie(numeroSerie);
+        boolean existe = alocacaoEquipamentoService.verificarSeAlocacaoExiste(alocacaoDTO);
         return new ResponseEntity<>(existe, HttpStatus.OK);
     }
 
@@ -66,15 +61,25 @@ public class EqAlocacao {
         return new ResponseEntity<>(quantidade, HttpStatus.OK);
     }
 
-    @GetMapping("/usuario/{usuario}")
-    public ResponseEntity<List<AlocacaoDTO>> buscarAlocacoesPorUsuario(@PathVariable String usuario) {
-        List<AlocacaoDTO> alocacoes = alocacaoEquipamentoService.buscarAlocacoesPorUsuario(usuario);
+    @PostMapping("/usuario")
+    public ResponseEntity<List<AlocacaoDTO>> buscarAlocacoesPorUsuario(@RequestBody AlocacaoDTO alocacaoDTO) {
+        List<AlocacaoDTO> alocacoes = alocacaoEquipamentoService.buscarAlocacoesPorUsuario(alocacaoDTO);
         return new ResponseEntity<>(alocacoes, HttpStatus.OK);
     }
 
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<AlocacaoDTO>> buscarAlocacoesPorStatus(@PathVariable String status) {
-        List<AlocacaoDTO> alocacoes = alocacaoEquipamentoService.buscarAlocacoesPorStatus(status);
+    @PostMapping("/status")
+    public ResponseEntity<List<AlocacaoDTO>> buscarAlocacoesPorStatus(@RequestBody AlocacaoDTO alocacaoDTO) {
+        List<AlocacaoDTO> alocacoes = alocacaoEquipamentoService.buscarAlocacoesPorStatus(alocacaoDTO);
         return new ResponseEntity<>(alocacoes, HttpStatus.OK);
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<AlocacaoDTO> adicionarAlocacao(@RequestBody AlocacaoDTO alocacaoDTO) {
+        AlocacaoDTO alocacao = alocacaoEquipamentoService.salvarAlocacao(alocacaoDTO);
+        if (alocacao != null) {
+            return new ResponseEntity<>(alocacao, HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }

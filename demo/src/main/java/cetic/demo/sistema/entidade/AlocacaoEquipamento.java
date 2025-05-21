@@ -44,6 +44,9 @@ public class AlocacaoEquipamento {
     @Column(nullable = false)
     private String status; // Exemplo: "Ativo", "Concluído"
 
+    private String status2;
+
+
 
     public AlocacaoEquipamento (AlocacaoDTO alocacaoDTO){
 

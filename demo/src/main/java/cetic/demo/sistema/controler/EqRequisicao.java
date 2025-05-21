@@ -5,12 +5,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import cetic.demo.sistema.dto.RequisicaoDTO;
@@ -30,15 +28,15 @@ public class EqRequisicao {
         return ResponseEntity.ok(requisicaoSalva);
     }
 
-    @GetMapping("/responsavel/{responsavel}")
-    public ResponseEntity<List<RequisicaoDTO>> buscarRequisicoesPorResponsavel(@PathVariable String responsavel) {
-        List<RequisicaoDTO> requisicoes = requisicaoEquipamentoService.buscarRequisicoesPorResponsavel(responsavel);
+    @PostMapping("/responsavel")
+    public ResponseEntity<List<RequisicaoDTO>> buscarRequisicoesPorResponsavel(@RequestBody RequisicaoDTO requisicaoDTO) {
+        List<RequisicaoDTO> requisicoes = requisicaoEquipamentoService.buscarRequisicoesPorResponsavel(requisicaoDTO.getResponsavel());
         return ResponseEntity.ok(requisicoes);
     }
 
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<RequisicaoDTO>> buscarRequisicoesPorStatus(@PathVariable String status) {
-        List<RequisicaoDTO> requisicoes = requisicaoEquipamentoService.buscarRequisicoesPorStatus(status);
+    @PostMapping("/status")
+    public ResponseEntity<List<RequisicaoDTO>> buscarRequisicoesPorStatus(@RequestBody RequisicaoDTO requisicaoDTO) {
+        List<RequisicaoDTO> requisicoes = requisicaoEquipamentoService.buscarRequisicoesPorStatus(requisicaoDTO.getStatus());
         return ResponseEntity.ok(requisicoes);
     }
 
@@ -48,9 +46,26 @@ public class EqRequisicao {
         return ResponseEntity.ok(requisicoes);
     }
 
-    @PutMapping("/status/{id}")
-    public ResponseEntity<RequisicaoDTO> atualizarStatus(@PathVariable Long id, @RequestParam String status) {
-        RequisicaoDTO requisicaoAtualizada = requisicaoEquipamentoService.atualizarStatus(id, status);
+   
+    @PutMapping("/status")
+    public ResponseEntity<RequisicaoDTO> atualizarStatus(@RequestBody RequisicaoDTO requisicaoDTO) {
+        RequisicaoDTO requisicaoAtualizada = requisicaoEquipamentoService.atualizarStatus(requisicaoDTO.getId(), requisicaoDTO.getStatus());
         return ResponseEntity.ok(requisicaoAtualizada);
+    }
+
+    @PutMapping
+    public ResponseEntity<RequisicaoDTO> atualizarRequisicao(@RequestBody RequisicaoDTO requisicaoDTO) {
+        RequisicaoDTO requisicaoAtualizada = requisicaoEquipamentoService.atualizarRequisicao(requisicaoDTO);
+        return ResponseEntity.ok(requisicaoAtualizada);
+    }
+
+    @PostMapping("/remover")
+    public ResponseEntity<Void> removerRequisicao(@RequestBody RequisicaoDTO requisicaoDTO) {
+        boolean removido = requisicaoEquipamentoService.removerRequisicao(requisicaoDTO);
+        if (removido) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

@@ -54,6 +54,40 @@ public class RequisicaoEquipamentoService {
         return new RequisicaoDTO(requisicaoAtualizada);
     }
 
+    @Transactional
+    public boolean removerRequisicao(RequisicaoDTO requisicaoDTO) {
+        if (requisicaoDTO.getId() == null) {
+            throw new IllegalArgumentException("ID da requisição é obrigatório para remoção.");
+        }
+        if (requisicaoEquipamentoRepository.existsById(requisicaoDTO.getId())) {
+            requisicaoEquipamentoRepository.deleteById(requisicaoDTO.getId());
+            return true;
+        }
+        return false;
+    }
+
+    @Transactional
+    public RequisicaoDTO atualizarRequisicao(RequisicaoDTO requisicaoDTO) {
+        if (requisicaoDTO.getId() == null) {
+            throw new IllegalArgumentException("ID da requisição é obrigatório para atualização.");
+        }
+        RequisicaoEquipamento requisicao = requisicaoEquipamentoRepository.findById(requisicaoDTO.getId())
+                .orElseThrow(() -> new RuntimeException("Requisição não encontrada"));
+        // Atualiza os campos permitidos
+        requisicao.setDataRequisicao(requisicaoDTO.getDataRequisicao());
+        requisicao.setQuantidade(requisicaoDTO.getQuantidade());
+        requisicao.setJustificativaRequisicao(requisicaoDTO.getJustificativaRequisicao());
+        requisicao.setStatus(requisicaoDTO.getStatus());
+        requisicao.setStatus2(requisicaoDTO.getStatus2());
+        requisicao.setResponsavel(requisicaoDTO.getResponsavel());
+        requisicao.setNomeEquipamento(requisicaoDTO.getNomeEquipamento());
+        requisicao.setModeloEquipamento(requisicaoDTO.getModeloEquipamento());
+        requisicao.setTipoEquipamento(requisicaoDTO.getTipoEquipamento());
+        requisicao.setDescricaoEquipamento(requisicaoDTO.getDescricaoEquipamento());
+        RequisicaoEquipamento requisicaoAtualizada = requisicaoEquipamentoRepository.save(requisicao);
+        return new RequisicaoDTO(requisicaoAtualizada);
+    }
+
     public long contarRequisicoes() {
         return requisicaoEquipamentoRepository.count();
     }

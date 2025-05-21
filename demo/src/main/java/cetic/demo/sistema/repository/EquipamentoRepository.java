@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import cetic.demo.sistema.entidade.AlocacaoEquipamento;
 import cetic.demo.sistema.entidade.Equipamento;
 
 

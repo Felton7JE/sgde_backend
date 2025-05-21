@@ -31,6 +31,9 @@ public class AlocacaoDTO {
 
     private String nome; // Adicionando o campo nome
 
+        private String status2;
+
+
 
     public AlocacaoDTO(AlocacaoEquipamento alocacaoEquipamento) {
 

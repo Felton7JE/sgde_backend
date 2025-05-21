@@ -94,15 +94,5 @@ public class EqDashboard {
         return manutencaoEquipamentoService.contarManutencaoPorStatus("CONCLUIDO");
     }
 
-    // Contar avarias PENDENTES
-    @GetMapping("/APendente")
-    public long contarAvariaPendente() {
-        return avariaEquipamentoService.contarAvariasPorStatus("PENDENTE");
-    }
-
-    // Contar avarias EM ANDAMENTO
-    @GetMapping("/AAndamento")
-    public long contarAvariaEmAndamento() {
-        return avariaEquipamentoService.contarAvariasPorStatus("EM_ANDAMENTO");
-    }
+   
 }

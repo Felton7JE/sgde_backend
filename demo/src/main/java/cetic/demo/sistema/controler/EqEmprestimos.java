@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cetic.demo.sistema.dto.EmprestimoDTO;
-import cetic.demo.sistema.entidade.EmprestimoEquipamento;
 import cetic.demo.sistema.services.EmprestimoEquipamentoService;
 
 @RestController
@@ -25,12 +25,11 @@ public class EqEmprestimos {
      @Autowired
     private EmprestimoEquipamentoService emprestimoEquipamentoService;
 
-    // Salvar um empréstimo
-    @PostMapping("/{numeroSerie}")
-    public ResponseEntity<EmprestimoDTO> salvarEmprestimo(@PathVariable String numeroSerie, 
-                                                          @RequestBody EmprestimoEquipamento emprestimoEquipamento) {
-        EmprestimoDTO emprestimoDTO = emprestimoEquipamentoService.salvarEmprestimo(numeroSerie, emprestimoEquipamento);
-        return ResponseEntity.ok(emprestimoDTO);
+ 
+       @PostMapping
+    public ResponseEntity<EmprestimoDTO> criarEmprestimo(@RequestBody EmprestimoDTO emprestimoDTO) {
+        EmprestimoDTO emprestimoSalvo = emprestimoEquipamentoService.salvarEmprestimo(emprestimoDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(emprestimoSalvo);
     }
 
     // Listar todos os empréstimos
@@ -41,34 +40,35 @@ public class EqEmprestimos {
     }
 
     // Buscar empréstimo por número de série
-    @GetMapping("/{numeroSerie}")
-    public ResponseEntity<EmprestimoDTO> buscarEmprestimoPorNumeroSerie(@PathVariable String numeroSerie) {
-        Optional<EmprestimoDTO> emprestimoDTO = emprestimoEquipamentoService.buscarEmprestimoPorNumeroSerie(numeroSerie);
-        return emprestimoDTO.map(ResponseEntity::ok)
-                            .orElseGet(() -> ResponseEntity.notFound().build());
+    @PostMapping("/buscar")
+    public ResponseEntity<EmprestimoDTO> buscarEmprestimoPorNumeroSerie(@RequestBody EmprestimoDTO emprestimoDTO) {
+        Optional<EmprestimoDTO> resultado = emprestimoEquipamentoService.buscarEmprestimoPorNumeroSerie(emprestimoDTO);
+        return resultado.map(ResponseEntity::ok)
+                        .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Atualizar empréstimo por número de série
-    @PutMapping("/{numeroSerie}")
-    public ResponseEntity<EmprestimoDTO> atualizarEmprestimoPorNumeroSerie(@PathVariable String numeroSerie,
-                                                                            @RequestBody EmprestimoEquipamento dadosAtualizados) {
-        Optional<EmprestimoDTO> emprestimoDTO = emprestimoEquipamentoService.atualizarEmprestimoPorNumeroSerie(numeroSerie, dadosAtualizados);
-        return emprestimoDTO.map(ResponseEntity::ok)
-                            .orElseGet(() -> ResponseEntity.notFound().build());
+    @PutMapping
+    public ResponseEntity<EmprestimoDTO> atualizarEmprestimoPorNumeroSerie(@RequestBody EmprestimoDTO emprestimoDTO) {
+        Optional<EmprestimoDTO> resultado = emprestimoEquipamentoService.atualizarEmprestimoPorNumeroSerie(emprestimoDTO);
+        return resultado.map(ResponseEntity::ok)
+                        .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Excluir empréstimo por número de série
-    @DeleteMapping("/{numeroSerie}")
-    public ResponseEntity<Void> excluirEmprestimoPorNumeroSerie(@PathVariable String numeroSerie) {
-        boolean excluido = emprestimoEquipamentoService.excluirEmprestimoPorNumeroSerie(numeroSerie);
+    @DeleteMapping("/excluir")
+    public ResponseEntity<Void> excluirEmprestimoPorNumeroSerie(@RequestBody EmprestimoDTO emprestimoDTO) {
+        boolean excluido = emprestimoEquipamentoService.excluirEmprestimoPorNumeroSerie(emprestimoDTO);
         return excluido ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
     // Verificar se o empréstimo existe
     @GetMapping("/verificar/{numeroSerie}")
-    public ResponseEntity<Void> verificarSeEmprestimoExiste(@PathVariable String numeroSerie) {
-        boolean existe = emprestimoEquipamentoService.verificarSeEmprestimoExiste(numeroSerie);
-        return existe ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    public ResponseEntity<Boolean> verificarSeEmprestimoExiste(@PathVariable String numeroSerie) {
+        EmprestimoDTO emprestimoDTO = new EmprestimoDTO();
+        emprestimoDTO.setNumeroSerie(numeroSerie);
+        boolean existe = emprestimoEquipamentoService.verificarSeEmprestimoExiste(emprestimoDTO);
+        return ResponseEntity.ok(existe);
     }
 
     // Contar o número de empréstimos
@@ -81,14 +81,18 @@ public class EqEmprestimos {
     // Buscar empréstimos por responsável
     @GetMapping("/responsavel/{responsavel}")
     public ResponseEntity<List<EmprestimoDTO>> buscarEmprestimosPorResponsavel(@PathVariable String responsavel) {
-        List<EmprestimoDTO> emprestimos = emprestimoEquipamentoService.buscarEmprestimosPorResponsavel(responsavel);
+        EmprestimoDTO emprestimoDTO = new EmprestimoDTO();
+        emprestimoDTO.setResponsavel(responsavel);
+        List<EmprestimoDTO> emprestimos = emprestimoEquipamentoService.buscarEmprestimosPorResponsavel(emprestimoDTO);
         return ResponseEntity.ok(emprestimos);
     }
 
     // Buscar empréstimos por status
     @GetMapping("/status/{status}")
     public ResponseEntity<List<EmprestimoDTO>> buscarEmprestimosPorStatus(@PathVariable String status) {
-        List<EmprestimoDTO> emprestimos = emprestimoEquipamentoService.buscarEmprestimosPorStatus(status);
+        EmprestimoDTO emprestimoDTO = new EmprestimoDTO();
+        emprestimoDTO.setStatus(status);
+        List<EmprestimoDTO> emprestimos = emprestimoEquipamentoService.buscarEmprestimosPorStatus(emprestimoDTO);
         return ResponseEntity.ok(emprestimos);
     }
 }
