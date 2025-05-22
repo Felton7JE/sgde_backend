@@ -14,7 +14,7 @@ public class confWeb implements WebMvcConfigurer{
             @Override
             public void addCorsMappings(@SuppressWarnings("null") CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:62470")
+                        .allowedOrigins("http://localhost:54366")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);

@@ -68,12 +68,9 @@ public class EqManutecao {
     // Atualizar manutenção de um equipamento
     @PutMapping
     public ResponseEntity<ManutencaoDTO> atualizarManutencao(@RequestBody ManutencaoDTO manutencaoDTO) {
-        try {
-            Optional<ManutencaoDTO> manutencaoAtualizada = manutencaoEquipamentoService.atualizarManutencao(manutencaoDTO, null);
-            return manutencaoAtualizada.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+        Optional<ManutencaoDTO> manutencao = manutencaoEquipamentoService.atualizarManutencao(manutencaoDTO);
+        return manutencao.map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     // Remover manutenção de um equipamento

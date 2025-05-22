@@ -81,33 +81,40 @@ public class ManutencaoEquipamentoService {
                 .map(ManutencaoDTO::new);
     }
 
-    public Optional<ManutencaoDTO> atualizarManutencao(ManutencaoDTO manutencaoDTO, ManutencaoEquipamento dadosAtualizados) {
-        Equipamento equipamento = equipamentoRepository.findByNumeroSerie(manutencaoDTO.getNumeroSerie())
-                .orElseThrow(() -> new RuntimeException("Equipamento não encontrado"));
-
+    public Optional<ManutencaoDTO> atualizarManutencao(ManutencaoDTO manutencaoDTO) {
         Optional<ManutencaoEquipamento> manutencaoExistente = manutencaoEquipamentoRepository
-                .findByEquipamento(equipamento)
+                .findByEquipamento(equipamentoRepository.findByNumeroSerie(manutencaoDTO.getNumeroSerie())
+                        .orElse(null))
                 .stream()
                 .findFirst();
 
         if (manutencaoExistente.isPresent()) {
             ManutencaoEquipamento manutencao = manutencaoExistente.get();
 
-            manutencao.setTipoManutencao(dadosAtualizados.getTipoManutencao());
-            manutencao.setDataManutencao(dadosAtualizados.getDataManutencao());
-            manutencao.setDescricaoManutencao(dadosAtualizados.getDescricaoManutencao());
-            manutencao.setResponsavel(dadosAtualizados.getResponsavel());
-            manutencao.setStatus(dadosAtualizados.getStatus());
-            equipamento.setStatus(manutencao.getStatus());
-            equipamentoRepository.save(equipamento);    
-            manutencao.setTempoInatividade(dadosAtualizados.getTempoInatividade());
+            manutencao.setTipoManutencao(manutencaoDTO.getTipoManutencao());
+            manutencao.setDataManutencao(manutencaoDTO.getDataManutencao());
+            manutencao.setDescricaoManutencao(manutencaoDTO.getDescricaoManutencao());
+            manutencao.setResponsavel(manutencaoDTO.getResponsavel());
+            manutencao.setStatus(manutencaoDTO.getStatus());
+            manutencao.setTempoInatividade(manutencaoDTO.getTempoInatividade());
 
+            // Atualiza o status do equipamento também
+            Equipamento equipamento = manutencao.getEquipamento();
+            equipamento.setStatus(manutencaoDTO.getStatus());
+            equipamentoRepository.save(equipamento);
+
+            // Se a manutenção foi concluída, atualizar status da avaria para CONCLUIDO
+            if ("Concluído".equalsIgnoreCase(manutencaoDTO.getStatus()) || "RESOLVIDO".equalsIgnoreCase(manutencaoDTO.getStatus())) {
+                AvariaEquipamento avaria = avariaEquipamentoRepository.findByEquipamentoAndStatus(equipamento, StatusAvaria.AVARIADO);
+                if (avaria != null) {
+                    avaria.setStatus(StatusAvaria.CONCLUIDO); // valor correto da enum
+                    avariaEquipamentoRepository.save(avaria);
+                }
+            }
 
             ManutencaoEquipamento manutencaoAtualizada = manutencaoEquipamentoRepository.save(manutencao);
-
             return Optional.of(new ManutencaoDTO(manutencaoAtualizada));
         }
-
         return Optional.empty();
     }
 

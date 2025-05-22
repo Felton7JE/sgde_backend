@@ -1,6 +1,9 @@
 package cetic.demo.sistema.enums;
 
 public enum StatusAvaria {
-    AVARIADO,
-    FUNCIONANDO;
+  FUNCIONANDO,
+  AVARIADO,
+  CANCELADA,
+  CONCLUIDO,
+  AGUARDANDO_PECA
 }
