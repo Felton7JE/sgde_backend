@@ -23,6 +23,14 @@ sistema/
 ├── services/     # Serviços de negócio
 ```
 
+## Funcionalidades Principais
+- **Cadastro e Consulta de Equipamentos**: Permite registrar, listar e buscar equipamentos.
+- **Alocação de Equipamentos**: Gerencia a alocação de equipamentos para usuários ou setores.
+- **Empréstimos**: Controle de empréstimos e devoluções de equipamentos.
+- **Manutenção**: Registro e acompanhamento de manutenções preventivas e corretivas.
+- **Requisições**: Solicitação e aprovação de uso de equipamentos.
+- **Avarias**: Registro e controle de avarias e incidentes com equipamentos.
+
 ## Principais Endpoints
 - `POST   /sistema/equipamento`         – Cadastrar equipamento
 - `GET    /sistema/equipamento/listar`  – Listar equipamentos
@@ -70,10 +78,11 @@ Content-Type: application/json
 }
 ```
 
-## Requisitos
+## Tecnologias Utilizadas
 - Java 17+
 - Spring Boot 3+
-- Banco de dados relacional ( MySQL)
+- Spring Data JPA
+- MySQL
 
 ## Configuração e Execução
 1. Configure o banco de dados em `src/main/resources/application.properties`.
@@ -87,6 +96,9 @@ Content-Type: application/json
    ```
 4. Utilize ferramentas como Postman ou Insomnia para consumir os endpoints REST.
 
+## Observações
+- O módulo `/sistema` depende de autenticação e autorização fornecidas pelo módulo de segurança do projeto.
+- Para detalhes sobre endpoints e exemplos de uso, consulte os controladores em `sistema/controler/`.
 
-## Suporte
-Em caso de dúvidas, sugestões ou problemas, entre em contato comigo .
+---
+Desenvolvido por CETIC.
